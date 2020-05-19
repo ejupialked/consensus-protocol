@@ -1,17 +1,17 @@
 #!/bin/sh
 
-osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Coordinator.java; java Coordinator 1243 4"'
+#osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Coordinator.java; java Coordinator 12345 12344 4 500 A B C"'
+#sleep 3
+
+osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 12345 12344 2222 555"'
 sleep 3
 
-osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 1243 2222"'
+osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 12345 12344 4444 555"'
 sleep 3
 
-osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 1243 4444"'
+osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 12345 12344 3333 555"'
 sleep 3
 
-osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 1243 3333"'
-sleep 3
-
-osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 1243 5555"'
+osascript -e 'tell app "Terminal" to do script "cd /Users/alked/IdeaProjects/consensus-protocol/src; javac Participant.java; java Participant 12345 12344 5555 555"'
 
 rm *.class

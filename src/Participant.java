@@ -4,33 +4,42 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Set;
 
-public class Participant implements Runnable{
-    private Socket socket;
-    private InetAddress host;
+public class Participant implements Runnable {
 
-    private int cport, pport, lport;
+    private final int cport; // Port number of the coordinator
+    private final int lport; // Port number of the logger server
+    private final int pport; // Port number that this participant will be listening on.
+    private final long timeout;
 
+    private Socket coordinatorSocket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+    private InetAddress host;
     private boolean isRunning;
 
-    Participant(int cport, int pport){
+    private Set<String> options;
+    private List<Integer> participantsDetails;
+
+    Participant(int cport, int lport, int pport, long timeout){
         this.cport = cport;
+        this.lport = lport;
         this.pport = pport;
+        this.timeout = timeout;
 
         try {
             this.host = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        this.socket = connect(cport, host);
+
+        this.coordinatorSocket = connect(this.cport, host);
 
         try {
-            oos = new ObjectOutputStream(socket.getOutputStream());
-            ois = new ObjectInputStream(socket.getInputStream());
-
-            sendMessage("JOIN " + pport);
+            oos = new ObjectOutputStream(coordinatorSocket.getOutputStream());
+            ois = new ObjectInputStream(coordinatorSocket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,8 +61,6 @@ public class Participant implements Runnable{
         return socket;
     }
 
-
-
     private void delay (long time){
         try {
             Thread.sleep(time);
@@ -66,22 +73,11 @@ public class Participant implements Runnable{
         System.out.println(log);
     }
 
-    private void sendMessage(String message){
-        try {
-            oos.writeUTF(message);
-            oos.flush();
-
-            log("Sending " + message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void close() {
         try {
             oos.close();
             ois.close();
-            socket.close();
+            coordinatorSocket.close();
             isRunning = false;
         } catch (IOException e) {
             log("Closing connection...");
@@ -90,23 +86,66 @@ public class Participant implements Runnable{
 
     @Override
     public void run() {
+        sendJoinRequest();
+        listenForRequests();
+    }
+
+    private void listenForRequests() {
         isRunning = true;
-        while (isRunning) {
+        while(isRunning){
             try {
-                String msg = ois.readUTF();
-                log(msg);
+                Token request = null;
+                try {
+                    request = ((Token) ois.readObject());
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                if(request instanceof Token.Details){
+                    System.out.println(((Token.Details) request).request);
+                    this.participantsDetails = ((Token.Details) request).ports;
+                    this.participantsDetails.removeIf(p -> p == pport);
+                }else if(request instanceof Token.VoteOptions) {
+                    System.out.println(((Token.VoteOptions) request).request);
+                    this.options = ((Token.VoteOptions) request).voteOptions;
+                } else{
+                    System.out.println(request.request);
+                }
+
             } catch (IOException e) {
+                e.printStackTrace();
                 close();
             }
         }
     }
 
+
+
+    private void sendJoinRequest() {
+        Token.sendMessage(oos, new Token().new Join(pport));
+    }
+
+
     public static void main(String[] args) {
-        int cport = Integer.parseInt(args[0]);
-        int pport = Integer.parseInt(args[1]);
 
-        Participant p = new Participant(cport, pport);
+        if(args.length != 4){
+            System.err.println("Unable to create Participant." + " Insert the correct number of arguments.");
+        }else {
+            int cport = Integer.parseInt(args[0]);
+            int lport = Integer.parseInt(args[1]);
+            int pport = Integer.parseInt(args[2]);
+            long timeout = Long.parseLong(args[3]);
 
-        new Thread(p).start();
+
+            System.out.println("Coordinator port: " + cport);
+            System.out.println("Logger server port: " + lport);
+            System.out.println("This participant port: " + pport);
+
+            System.out.println("Timeout: " +timeout + "ms");
+
+            Participant participant = new Participant(cport, lport, pport, timeout);
+            Thread participantServer = new Thread(participant);
+            participantServer.start();
+        }
     }
 }
