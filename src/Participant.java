@@ -25,7 +25,7 @@ public class Participant implements Runnable {
     private int f;
     private List<String> options;
     private List<Integer> participantsDetails;
-    private Map<Integer, Set<Vote>> roundVotes;
+    private Map<Integer, List<Vote>> roundVotes;
     private Vote myVote;
 
     /*** Coordinator connection ***/
@@ -135,33 +135,45 @@ public class Participant implements Runnable {
     }
 
     private void runConsensusAlgorithm() {
-        roundVotes.put(0, new HashSet<>());
-        Set<Vote> v1 = new HashSet<>(); v1.add(myVote);
+        roundVotes.put(0, new ArrayList<>());
+        List<Vote> v1 = new ArrayList<>();
+        v1.add(myVote);
         roundVotes.put(1, v1);
 
         for (int r = 1; r <= f+1; r++) {
             logger.beginRound(r);
 
-            Token.log("Round " + r + ": " + roundVotes.get(r)); Token.sleep(5000);
-            Set<Vote> newVotes;
+            for (int i = 0; i < roundVotes.size() ; i++) {
+                Token.log("Round " + i + ": " + roundVotes.get(i)); Token.sleep(34);
+            }
+
+            List<Vote> newVotes;
             if(r != 1)
                 newVotes = getNewVotes(roundVotes.get(r), roundVotes.get(r-1));
             else
-                newVotes = new HashSet<>(roundVotes.get(r));
+                newVotes = new ArrayList<>(roundVotes.get(r));
 
             basicMulticast(newVotes, group.values()); // multi-cast newVotes to group
             System.out.println("Multicasting: " + newVotes);
-            roundVotes.put(r+1, roundVotes.get(r));
+            roundVotes.put(r+1, new ArrayList<>());
 
             Token.sleep(timeout);
+
 
             for(OtherParticipantHandler o: p2pHandler) {
                 while(!o.getVotesReceived().isEmpty()){
                     roundVotes.get(r + 1).add(o.getVotesReceived().remove());
                 }
             }
-            if(r == 2 && pport == 1111)
-                roundVotes.get(r + 1).add(new Vote(0000, "B"));
+
+            if(r == 2 && pport == 1111) {
+                roundVotes.get(r+1).add(new Vote(0000, "B"));
+
+                Token.log(" round " + (r-1) + " is " + roundVotes.get(r +1));
+                Token.log(" round " + (r+1) + " is " + roundVotes.get(r +1));
+                Token.log(" round " + r+ " is " + roundVotes.get(r ));
+
+            }
 
             logger.endRound(r);
         }
@@ -173,25 +185,17 @@ public class Participant implements Runnable {
         System.out.println(req);
     }
 
-    private Set<Vote> getNewVotes(Set<Vote> curr, Set<Vote> prev) {
+    private List<Vote> getNewVotes(List<Vote> curr, List<Vote> prev) {
         Set<String> ids = prev.stream()
                 .map(Vote::toString)
                 .collect(Collectors.toSet());
-        Set<Vote> noDup = curr.stream()
+        List<Vote> noDup = curr.stream()
                 .filter(v -> !ids.contains(v.toString()))
-                .collect(Collectors.toSet());
-
-        System.out.println("IDS:" + ids);
-
-        Set<String> ids2 = curr.stream()
-                .map(Vote::toString)
-                .collect(Collectors.toSet());
-        System.out.println("IDS2:" + ids2);
-
+                .collect(Collectors.toList());
         return noDup;
     }
 
-    private void basicMulticast(Set<Vote> votes, Collection<ParticipantClient> group){
+    private void basicMulticast(List<Vote> votes, Collection<ParticipantClient> group){
         List<SingleVote> singleVoteList = new ArrayList<>();
         votes.forEach(v -> singleVoteList.add(new SingleVote(v.getParticipantPort(), v.getVote())));
 

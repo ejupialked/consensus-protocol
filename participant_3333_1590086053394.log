@@ -1,0 +1,82 @@
+[P3333] connection established to port 12345
+[P3333] started listening on port 3333
+[P3333] message sent to 12345: "JOIN 3333"
+[P3333] JOIN sent to Coordinator on port 12345
+[P3333] message received from 12345: "DETAILS 4444 2222 1111 "
+[P3333] received participant ports: 4444, 2222, 1111
+[P3333] message received from 12345: "VOTE_OPTIONS A B C "
+[P3333] received vote options: A, B, C
+[P3333] connection established to port 4444
+[P3333] connection established to port 2222
+[P3333] connection established to port 1111
+[P3333] accepted connection from port 3333
+[P3333] accepted connection from port 3333
+[P3333] accepted connection from port 3333
+[P3333] begin round 1
+[P3333] message sent to 1111: "VOTE3333 A "
+[P3333] message sent to 3333: "VOTE3333 A "
+[P3333] votes sent to 1111: <3333, A>
+[P3333] message sent to 4444: "VOTE3333 A "
+[P3333] message sent to 3333: "VOTE3333 A "
+[P3333] votes sent to 4444: <3333, A>
+[P3333] message sent to 2222: "VOTE3333 A "
+[P3333] message sent to 3333: "VOTE3333 A "
+[P3333] votes sent to 2222: <3333, A>
+[P3333] message received from 3333: "VOTE4444 B  loop -> 1 from Thread[Thread-1,5,main]"
+[P3333] votes received from 4444: <4444, B>
+[P3333] message received from 3333: "VOTE1111 B  loop -> 1 from Thread[Thread-3,5,main]"
+[P3333] votes received from 1111: <1111, B>
+[P3333] message received from 3333: "VOTE2222 C  loop -> 1 from Thread[Thread-2,5,main]"
+[P3333] votes received from 2222: <2222, C>
+[P3333] end round 1
+[P3333] begin round 2
+[P3333] message sent to 1111: "VOTE1111 B 4444 B 2222 C "
+[P3333] message sent to 3333: "VOTE1111 B 4444 B 2222 C "
+[P3333] votes sent to 1111: <1111, B>, <4444, B>, <2222, C>
+[P3333] message sent to 4444: "VOTE1111 B 4444 B 2222 C "
+[P3333] message sent to 3333: "VOTE1111 B 4444 B 2222 C "
+[P3333] votes sent to 4444: <1111, B>, <4444, B>, <2222, C>
+[P3333] message sent to 2222: "VOTE1111 B 4444 B 2222 C "
+[P3333] message sent to 3333: "VOTE1111 B 4444 B 2222 C "
+[P3333] votes sent to 2222: <1111, B>, <4444, B>, <2222, C>
+[P3333] message received from 3333: "VOTE3333 A 2222 C 1111 B  loop -> 2 from Thread[Thread-1,5,main]"
+[P3333] votes received from 4444: <3333, A>, <2222, C>, <1111, B>
+[P3333] message received from 3333: "VOTE2222 C 4444 B 3333 A  loop -> 2 from Thread[Thread-3,5,main]"
+[P3333] votes received from 1111: <2222, C>, <4444, B>, <3333, A>
+[P3333] message received from 3333: "VOTE3333 A 4444 B 1111 B  loop -> 2 from Thread[Thread-2,5,main]"
+[P3333] votes received from 2222: <3333, A>, <4444, B>, <1111, B>
+[P3333] end round 2
+[P3333] begin round 3
+[P3333] message sent to 1111: "VOTE3333 A 3333 A 3333 A "
+[P3333] message sent to 3333: "VOTE3333 A 3333 A 3333 A "
+[P3333] votes sent to 1111: <3333, A>, <3333, A>, <3333, A>
+[P3333] message received from 3333: "VOTE4444 B 4444 B 4444 B  loop -> 3 from Thread[Thread-1,5,main]"
+[P3333] message sent to 4444: "VOTE3333 A 3333 A 3333 A "
+[P3333] message sent to 3333: "VOTE3333 A 3333 A 3333 A "
+[P3333] votes sent to 4444: <3333, A>, <3333, A>, <3333, A>
+[P3333] message sent to 2222: "VOTE3333 A 3333 A 3333 A "
+[P3333] message sent to 3333: "VOTE3333 A 3333 A 3333 A "
+[P3333] votes sent to 2222: <3333, A>, <3333, A>, <3333, A>
+[P3333] votes received from 4444: <4444, B>, <4444, B>, <4444, B>
+[P3333] message received from 3333: "VOTE0 B 1111 B 1111 B 1111 B  loop -> 3 from Thread[Thread-3,5,main]"
+[P3333] votes received from 1111: <0, B>, <1111, B>, <1111, B>, <1111, B>
+[P3333] message received from 3333: "VOTE2222 C 2222 C 2222 C  loop -> 3 from Thread[Thread-2,5,main]"
+[P3333] votes received from 2222: <2222, C>, <2222, C>, <2222, C>
+[P3333] end round 3
+[P3333] begin round 4
+[P3333] message received from 3333: "VOTE0 B  loop -> 4 from Thread[Thread-1,5,main]"
+[P3333] message sent to 1111: "VOTE0 B "
+[P3333] message sent to 3333: "VOTE0 B "
+[P3333] votes sent to 1111: <0, B>
+[P3333] votes received from 4444: <0, B>
+[P3333] message sent to 4444: "VOTE0 B "
+[P3333] message sent to 3333: "VOTE0 B "
+[P3333] votes sent to 4444: <0, B>
+[P3333] message sent to 2222: "VOTE0 B "
+[P3333] message sent to 3333: "VOTE0 B "
+[P3333] votes sent to 2222: <0, B>
+[P3333] message received from 3333: "VOTE loop -> 4 from Thread[Thread-3,5,main]"
+[P3333] votes received from 1111: 
+[P3333] message received from 3333: "VOTE0 B  loop -> 4 from Thread[Thread-2,5,main]"
+[P3333] votes received from 2222: <0, B>
+[P3333] end round 4
