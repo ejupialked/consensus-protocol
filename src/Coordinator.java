@@ -1,48 +1,50 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Coordinator implements Runnable {
     private final int port; // Port number that the Coordinator is listening on
     private final int lport; // Port number of the logger server
     private final int parts; // Number of participants expected
     private final long timeout;
-    private final Set<String> options; // Set of options
+    private final List<String> options; // Set of options
+
+    private CoordinatorLogger logger;
 
     private int noParticipantsJoined;
     private boolean isRunning;
-    private Map<Integer, CoordinatorClient> participants;
+    private Map<Integer, ParticipantHandler> participants;
     private ServerSocket ss;
 
-    Coordinator(int port, int lport, int parts, long timeout, Set<String> options) {
+    Coordinator(int port, int lport, int parts, long timeout, List<String> options) {
         this.port = port;
         this.lport = lport;
         this.parts = parts;
         this.timeout = timeout;
         this.options = options;
 
-        this.participants = new ConcurrentHashMap<>();
+        this.participants = Collections.synchronizedMap(new HashMap<>(parts));
+
+        try {
+            CoordinatorLogger.initLogger(port, port, ((int) timeout));
+            this.logger = CoordinatorLogger.getLogger();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initConnection() {
         try {
             ss = new ServerSocket(port);
-            System.out.println("Port: " + port);
-            System.out.println("Host: " + InetAddress.getLocalHost().toString());
+            logger.startedListening(port);
         } catch (IOException e) {
             System.err.println("Could not listen on port" + port);
         }
     }
 
-    public synchronized boolean register(Token.Join join, CoordinatorClient ph) {
-        if(participants.size() >= parts)
-            return false;
-
+    public boolean register(Token.Join join, ParticipantHandler ph) {
         if(participants.containsKey(join.port)){
             System.err.println("Coordinator: Participant already joined.");
             return false;
@@ -50,8 +52,7 @@ public class Coordinator implements Runnable {
 
         participants.put(join.port, ph);
         ph.setID(join.port);
-        System.out.println("Coordinator: Adding " + ph.getId() + " as a participant");
-
+        logger.joinReceived(join.port);
         return true;
     }
 
@@ -73,30 +74,50 @@ public class Coordinator implements Runnable {
      */
     private void sendDetails() {
         List<Integer> listParticipant = new ArrayList<Integer>(participants.keySet());
-        Token.Details details = new Token().new Details(listParticipant);
-        participants.values().forEach(p -> p.sendMessage(details));
+
+        participants.values().forEach(p -> {
+            Token.Details tokenDetails = new Token().new Details(
+                    listParticipant.stream().filter(p1 -> !p1.equals(p.getIdentifier()))
+                    .collect(Collectors.toList()));
+             p.sendMessage(tokenDetails);
+             logger.detailsSent(p.getIdentifier(), tokenDetails.ports);
+        });
     }
 
     /**
      * Send request for votes to all participants
      */
     private void sendVoteOptions() {
-        Token.VoteOptions details = new Token().new VoteOptions(options);
-        participants.values().forEach(p -> p.sendMessage(details));
+        Token.VoteOptions tokenVote = new Token().new VoteOptions(options);
+        participants.values().forEach(p -> {
+            p.sendMessage(tokenVote);
+            logger.voteOptionsSent(p.getIdentifier(), tokenVote.voteOptions);
+        });
     }
 
     private void waitParticipants() {
-        for (int i = 0; i <= parts; i++) {
+        while(true) {
             Socket participant = null;
             try {
                 participant = ss.accept();
-                CoordinatorClient ph = new CoordinatorClient(participant, this);
-                new Thread(ph).start();
+                logger.connectionAccepted(port);
+                ParticipantHandler ph = new ParticipantHandler(participant, this);
+                Token.Join req = (Token.Join) ph.waiJoinRequest();
+                if(req != null){
+                    if(register(req, ph)){
+                       ph.start();
+                    }
+                }
+                if(participants.size() == parts){
+                    break;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(0);
             }
         }
+
+        System.out.println("Reached max number of participant");
     }
 
 
@@ -110,7 +131,7 @@ public class Coordinator implements Runnable {
             int parts = Integer.parseInt(args[2]);
             long timeout = Long.parseLong(args[3]);
 
-            Set<String> options = new HashSet<>();
+            List<String> options = new ArrayList<>();
 
             for (int i = 4; i < args.length ; i++) {
                 options.add(args[i]);

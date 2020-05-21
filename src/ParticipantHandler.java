@@ -3,7 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class CoordinatorClient implements Runnable {
+public class ParticipantHandler extends Thread {
     private Socket participant;
     private Coordinator coordinator;
 
@@ -12,7 +12,7 @@ public class CoordinatorClient implements Runnable {
     private ObjectInputStream ois;
     private boolean isRunning;
 
-    CoordinatorClient(Socket participant, Coordinator coordinator) {
+    ParticipantHandler(Socket participant, Coordinator coordinator) {
         this.participant = participant;
         this.coordinator = coordinator;
         initStreams();
@@ -20,7 +20,6 @@ public class CoordinatorClient implements Runnable {
 
     @Override
     public void run() {
-        waiJoinRequest();
         receiveMessages();
     }
 
@@ -45,7 +44,12 @@ public class CoordinatorClient implements Runnable {
     }
 
     public void sendMessage(Token message){
-        Token.sendMessage(oos, message);
+        try {
+            oos.writeObject(message);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void receiveMessages(){
@@ -66,30 +70,33 @@ public class CoordinatorClient implements Runnable {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                System.err.println("Closing connection with " + id);
                 close();
             }
         }
     }
 
-    private void waiJoinRequest() {
+    public Token waiJoinRequest() {
         Token.Join joinRequest = null;
         try {
             joinRequest = ((Token.Join) ois.readObject());
-            if(coordinator.register(joinRequest, this))
-                System.out.println(joinRequest.request);
+            return joinRequest;
         } catch (IOException e) {
             e.printStackTrace();
+            close();
         } catch (ClassNotFoundException e) {
             System.err.println("Unknown participant did not send a join request.");
+            return null;
         }
+        return null;
     }
 
     public void setID(int id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getIdentifier() {
         return id;
     }
 }

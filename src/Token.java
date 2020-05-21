@@ -1,26 +1,22 @@
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 public class Token implements Serializable {
     String request;
-
-    String sender;
-    String receiver;
+    Integer sender;
+    Integer receiver;
 
     @Override
     public String toString() {
         return request;
     }
 
-    public void setReceiver(String receiver) {
-        this.receiver = "Receiver: " + receiver;
+    public void setReceiver(Integer receiver) {
+        this.receiver = receiver;
     }
 
-    public void setSender(String sender) {
-        this.sender = "Sender: " + sender;
+    public void setSender(Integer sender) {
+        this.sender = sender;
     }
 
     class Join extends Token {
@@ -56,14 +52,14 @@ public class Token implements Serializable {
     }
 
     class VoteOptions extends Token {
-        final Set<String> voteOptions; // List of voting options for the consensus protocol
+        final List<String> voteOptions; // List of voting options for the consensus protocol
 
-        VoteOptions(Set<String> voteOptions) {
+        VoteOptions(List<String> voteOptions) {
             this.voteOptions = voteOptions;
             this.request = voteOptionsRequest(voteOptions);
         }
 
-        private String voteOptionsRequest(Set<String> voteOptions) {
+        private String voteOptionsRequest(List<String> voteOptions) {
             StringBuilder req = new StringBuilder();
             req.append("VOTE_OPTIONS ");
             voteOptions.forEach(v -> req.append(v).append(" "));
@@ -72,14 +68,14 @@ public class Token implements Serializable {
     }
 
     class Votes extends Token {
-        final List<Vote> votes;
+        final List<VoteToken> votes;
 
-        Votes(List<Vote> votes) {
+        Votes(List<VoteToken> votes) {
             this.votes = votes;
             this.request = voteRequest(votes);
         }
 
-        private String voteRequest(List<Vote> votes) {
+        private String voteRequest(List<VoteToken> votes) {
             StringBuilder req = new StringBuilder();
             req.append("VOTE ");
             //VOTE port i vote 1 port 2 vote 2 ...port n vote n
@@ -108,13 +104,48 @@ public class Token implements Serializable {
 
     }
 
-    public static void sendMessage(ObjectOutputStream oos, Token message){
-        try {
-            oos.writeObject(message);
-            oos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+    class P2P extends Token {
+        final int id;
+
+        P2P(int id) {
+            this.id = id;
+            this.request = p2pRequest(this.id);
         }
+
+        private String p2pRequest(int id) {
+            StringBuilder req = new StringBuilder();
+            req.append("P2P Participant identified as ").append(id);
+            return req.toString();
+        }
+
     }
 
+    class VoteToken implements Serializable {
+        private final int participantPort;
+        private final String vote;
+
+        public VoteToken(int participantPort, String vote) {
+            this.participantPort = participantPort;
+            this.vote = vote;
+        }
+
+        public int getParticipantPort() {
+            return participantPort;
+        }
+
+        public String getVote() {
+            return vote;
+        }
+
+        @Override
+        public String toString() {
+            return "<" + participantPort + ", " + vote + ">";
+        }
+
+
+    }
+
+    public static void log(Object o){
+        System.out.println(o.toString());
+    }
 }
