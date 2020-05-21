@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 public class Token implements Serializable {
     String request;
@@ -68,20 +69,24 @@ public class Token implements Serializable {
     }
 
     class Votes extends Token {
-        final List<VoteToken> votes;
+        final List<SingleVote> votes;
 
-        Votes(List<VoteToken> votes) {
+        Votes(List<SingleVote> votes) {
             this.votes = votes;
             this.request = voteRequest(votes);
         }
 
-        private String voteRequest(List<VoteToken> votes) {
+        private String voteRequest(List<SingleVote> votes) {
             StringBuilder req = new StringBuilder();
-            req.append("VOTE ");
+            req.append("VOTE");
             //VOTE port i vote 1 port 2 vote 2 ...port n vote n
-            votes.forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()));
+
+            votes.forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
             return req.toString();
         }
+
+
+
     }
 
     class Outcome extends Token {
@@ -104,48 +109,41 @@ public class Token implements Serializable {
 
     }
 
-    class P2P extends Token {
-        final int id;
 
-        P2P(int id) {
-            this.id = id;
-            this.request = p2pRequest(this.id);
+    public static void sleep(long millis){
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
-        private String p2pRequest(int id) {
-            StringBuilder req = new StringBuilder();
-            req.append("P2P Participant identified as ").append(id);
-            return req.toString();
-        }
-
-    }
-
-    class VoteToken implements Serializable {
-        private final int participantPort;
-        private final String vote;
-
-        public VoteToken(int participantPort, String vote) {
-            this.participantPort = participantPort;
-            this.vote = vote;
-        }
-
-        public int getParticipantPort() {
-            return participantPort;
-        }
-
-        public String getVote() {
-            return vote;
-        }
-
-        @Override
-        public String toString() {
-            return "<" + participantPort + ", " + vote + ">";
-        }
-
-
     }
 
     public static void log(Object o){
         System.out.println(o.toString());
     }
+}
+
+class SingleVote implements Serializable {
+    private final int participantPort;
+    private final String vote;
+
+    public SingleVote(int participantPort, String vote) {
+        this.participantPort = participantPort;
+        this.vote = vote;
+    }
+
+    public int getParticipantPort() {
+        return participantPort;
+    }
+
+    public String getVote() {
+        return vote;
+    }
+
+    @Override
+    public String toString() {
+        return "<" + participantPort + ", " + vote + ">";
+    }
+
+
 }

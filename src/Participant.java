@@ -5,7 +5,11 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.Thread.sleep;
 
 public class Participant implements Runnable {
 
@@ -18,9 +22,10 @@ public class Participant implements Runnable {
     private final long timeout;
     /**************************/
 
+    private int f;
     private List<String> options;
     private List<Integer> participantsDetails;
-    private List<Vote> allVotes;
+    private Map<Integer, Set<Vote>> roundVotes;
     private Vote myVote;
 
     /*** Coordinator connection ***/
@@ -33,9 +38,9 @@ public class Participant implements Runnable {
     /*** P2P connections ********************************/
     private InetAddress host;
     private ServerSocket participantServer;
-    private Map<Integer, OtherParticipantHandler> p2pClients; // clients of participantServer (this)
+    private List<OtherParticipantHandler> p2pHandler; // clients of participantServer (this)
 
-    private Map<Integer, ParticipantClient> p2pServers; //connections to other participants
+    private Map<Integer, ParticipantClient> group; //connections to other participants
     /****************************************************/
 
 
@@ -45,16 +50,12 @@ public class Participant implements Runnable {
         this.lport = lport;
         this.pport = pport;
         this.timeout = timeout;
-        this.allVotes = new ArrayList<>();
-        this.p2pServers = new HashMap<>();
-        this.p2pClients = new HashMap<>();
+        this.roundVotes = Collections.synchronizedMap(new HashMap<>());
+        this.p2pHandler = Collections.synchronizedList(new ArrayList<>());
+        this.group = Collections.synchronizedMap(new HashMap<>());
+        this.logger = ParticipantLogger.getLogger();
 
-        try {
-            ParticipantLogger.initLogger(0000, pport, (int) timeout);
-            this.logger = ParticipantLogger.getLogger();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
         try {
             this.host = InetAddress.getLocalHost();
@@ -64,6 +65,8 @@ public class Participant implements Runnable {
 
         this.cSocket = connect(this.cport, host);
         logger.connectionEstablished(this.cport);
+
+        listenConnections();
 
 
         try {
@@ -91,7 +94,7 @@ public class Participant implements Runnable {
 
     private void delay (long time){
         try {
-            Thread.sleep(time);
+            sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -117,29 +120,90 @@ public class Participant implements Runnable {
         sendJoinRequest();
         receiveDetailsAndVotes();
         decideVote();
+        establishConnections();
+        waitClients();
 
-        new Thread(this::establishP2PConnections).start();
-
-        listenConnections();
-        waitP2PClients();
-
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while(true){
+            Token.sleep(1000);
+            if(group.size() == participantsDetails.size()){
+                System.out.println("starting consensus");
+                runConsensusAlgorithm();
+                return;
+            }
         }
-        runConsensusAlgorithm();
-        p2pClients.values().forEach(Thread::start);
+
     }
 
     private void runConsensusAlgorithm() {
+        roundVotes.put(0, new HashSet<>());
+        Set<Vote> v1 = new HashSet<>(); v1.add(myVote);
+        roundVotes.put(1, v1);
 
-        List<Token.VoteToken> votes = new ArrayList<>();
-        getAllVotes().forEach(v -> {
-            votes.add(new Token().new VoteToken(v.getParticipantPort(), v.getVote()));
+        for (int r = 1; r <= f+1; r++) {
+            logger.beginRound(r);
+
+            Token.log("Round " + r + ": " + roundVotes.get(r)); Token.sleep(5000);
+            Set<Vote> newVotes;
+            if(r != 1)
+                newVotes = getNewVotes(roundVotes.get(r), roundVotes.get(r-1));
+            else
+                newVotes = new HashSet<>(roundVotes.get(r));
+
+            basicMulticast(newVotes, group.values()); // multi-cast newVotes to group
+            System.out.println("Multicasting: " + newVotes);
+            roundVotes.put(r+1, roundVotes.get(r));
+
+            Token.sleep(timeout);
+
+            for(OtherParticipantHandler o: p2pHandler) {
+                while(!o.getVotesReceived().isEmpty()){
+                    roundVotes.get(r + 1).add(o.getVotesReceived().remove());
+                }
+            }
+            if(r == 2 && pport == 1111)
+                roundVotes.get(r + 1).add(new Vote(0000, "B"));
+
+            logger.endRound(r);
+        }
+
+        StringBuilder req = new StringBuilder();
+        req.append("VOTE ");
+        //VOTE port i vote 1 port 2 vote 2 ...port n vote n
+        roundVotes.get(f+1).forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
+        System.out.println(req);
+    }
+
+    private Set<Vote> getNewVotes(Set<Vote> curr, Set<Vote> prev) {
+        Set<String> ids = prev.stream()
+                .map(Vote::toString)
+                .collect(Collectors.toSet());
+        Set<Vote> noDup = curr.stream()
+                .filter(v -> !ids.contains(v.toString()))
+                .collect(Collectors.toSet());
+
+        System.out.println("IDS:" + ids);
+
+        Set<String> ids2 = curr.stream()
+                .map(Vote::toString)
+                .collect(Collectors.toSet());
+        System.out.println("IDS2:" + ids2);
+
+        return noDup;
+    }
+
+    private void basicMulticast(Set<Vote> votes, Collection<ParticipantClient> group){
+        List<SingleVote> singleVoteList = new ArrayList<>();
+        votes.forEach(v -> singleVoteList.add(new SingleVote(v.getParticipantPort(), v.getVote())));
+
+        List<Vote> votesForLogger = new ArrayList<>();
+        votes.forEach(v -> votesForLogger.add(new Vote(v.getParticipantPort(), v.getVote())));
+
+        Token.Votes votesToSend = new Token().new Votes(singleVoteList);
+        group.forEach(m -> {
+            m.sendMessage(votesToSend);
+            logger.messageSent(pport, votesToSend.request);
+            logger.votesSent(m.getOtherPort(), votesForLogger);
         });
-
-        p2pServers.values().forEach(p -> p.sendVote(new Token().new Votes(votes)));
     }
 
     private void listenConnections() {
@@ -150,39 +214,27 @@ public class Participant implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    private void establishP2PConnections() {
-        Token.log("establishP2PConnections");
-        Token.log("with this ports: " + participantsDetails);
+    private void establishConnections() {
         //Connect to other participants (servers)
         for(Integer otherP: participantsDetails){
-            Token.log("connecting with: " + otherP);
-            ParticipantClient server = new ParticipantClient(otherP, host, this);
-            p2pServers.put(otherP, server);
+                ParticipantClient client = new ParticipantClient(otherP, host, this);
         }
-
-        Token.log("I have this connections : " + p2pServers.keySet() );
     }
 
-    private void waitP2PClients() {
+    private void waitClients() {
         while(true) {
             Socket client = null;
             try {
                 client = participantServer.accept();
                 OtherParticipantHandler pc = new OtherParticipantHandler(client, this);
-                Integer otherPort = pc.waitOtherPort();
-                //         if(otherPort != null && participantsDetails.contains(otherPort) && !p2pClients.containsKey(otherPort)){
-                if(otherPort != null && participantsDetails.contains(otherPort) && !p2pClients.containsKey(otherPort)){
-                    p2pClients.put(otherPort, pc);
-                    logger.connectionAccepted(otherPort);
-                }else{
-                    throw new IOException();
-                }
+                pc.start();
+                p2pHandler.add(pc);
+                logger.connectionAccepted(pport);
 
-                // All participants are connected to this participant! Stop waiting.
-                if(p2pClients.size() == participantsDetails.size()){
+                // All participants have sent the vote to this participant! Stop receiving.
+                if(p2pHandler.size() == participantsDetails.size()){
                     return;
                 }
             } catch (IOException e) {
@@ -197,7 +249,6 @@ public class Participant implements Runnable {
         String randomVote = options.get(rand.nextInt(options.size()));
         this.myVote = new Vote(pport, randomVote);
         Token.log("Vote decided: " + myVote);
-        this.allVotes.add(this.myVote);
     }
 
     private void receiveDetailsAndVotes() {
@@ -213,16 +264,17 @@ public class Participant implements Runnable {
 
                 if(request instanceof Token.Details){
                     this.participantsDetails = ((Token.Details) request).ports;
+                    this.f = participantsDetails.size();
+                    logger.messageReceived(cport, request.request);
                     logger.detailsReceived(participantsDetails);
                 }else if(request instanceof Token.VoteOptions) {
                     this.options = ((Token.VoteOptions) request).voteOptions;
+                    logger.messageReceived(cport, request.request);
                     logger.voteOptionsReceived(options);
                     break;
                 } else{
                     System.out.println(request.request);
-
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
                 close();
@@ -232,8 +284,10 @@ public class Participant implements Runnable {
 
     private void sendJoinRequest() {
         try {
-            oos.writeObject( new Token().new Join(pport));
+            Token.Join join = new Token().new Join(pport);
+            oos.writeObject(join);
             oos.flush();
+            logger.messageSent(cport, join.request);
             logger.joinSent(cport);
         } catch (IOException e) {
             e.printStackTrace();
@@ -244,9 +298,23 @@ public class Participant implements Runnable {
         return pport;
     }
 
-    public List<Vote> getAllVotes() {
-        return allVotes;
+    public long getTimeout() {
+        return timeout;
     }
+
+    private List<Vote> toList(Set<Vote> votes){
+        return new ArrayList<>(votes);
+    }
+
+    public List<Integer> getParticipantsDetails() {
+        return participantsDetails;
+    }
+
+    public Map<Integer, ParticipantClient> getGroup() {
+        return group;
+    }
+
+
 
     public static void main(String[] args) {
         if(args.length != 4){
@@ -263,10 +331,24 @@ public class Participant implements Runnable {
             System.out.println("This participant port: " + pport);
 
 
+            try {
+                ParticipantLogger.initLogger(0000000, pport, (int) timeout);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             Participant participant = new Participant(cport, lport, pport, timeout);
             Thread participantServer = new Thread(participant);
             participantServer.start();
         }
+    }
+
+
+    public void removeParticipant(ParticipantClient participantClient) {
+        this.group.remove(participantClient);
+    }
+
+    public void removeParticipant(OtherParticipantHandler otherParticipantHandler) {
+        this.p2pHandler.remove(otherParticipantHandler);
     }
 }

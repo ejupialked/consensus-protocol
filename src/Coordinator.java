@@ -24,15 +24,8 @@ public class Coordinator implements Runnable {
         this.parts = parts;
         this.timeout = timeout;
         this.options = options;
-
         this.participants = Collections.synchronizedMap(new HashMap<>(parts));
-
-        try {
-            CoordinatorLogger.initLogger(port, port, ((int) timeout));
-            this.logger = CoordinatorLogger.getLogger();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.logger = CoordinatorLogger.getLogger();
     }
 
     private void initConnection() {
@@ -143,10 +136,15 @@ public class Coordinator implements Runnable {
             System.out.println("Timeout: " +timeout + "ms");
             System.out.println("Options for voting: " + options);
 
+            try {
+                CoordinatorLogger.initLogger(000000, port, ((int) timeout));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             Coordinator coordinator = new Coordinator(port, lport, parts, timeout, options);
             Thread coordinatorServer = new Thread(coordinator);
             coordinatorServer.start();
-
         }
     }
 }

@@ -1,25 +1,33 @@
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class OtherParticipantHandler extends Thread {
     private Socket otherParticipant;
     private Participant participant;
-    private int otherPort;
+    private int otherPort = 9999999;
+
+    private Queue<Vote> votesReceived;
 
     private ObjectInputStream ois;
 
     OtherParticipantHandler(Socket otherParticipant, Participant participant) {
         this.otherParticipant = otherParticipant;
         this.participant = participant;
+        this.votesReceived = new LinkedBlockingDeque<>();
         initStreams();
     }
 
     @Override
     public void run() {
-        receiveMessages();
+        receiveVotes();
+    }
+
+    public int getOtherPort() {
+        return otherPort;
     }
 
     private void initStreams() {
@@ -39,59 +47,70 @@ public class OtherParticipantHandler extends Thread {
         }
     }
 
-    public void receiveMessages(){
+    public void receiveVotes(){
+
+        int i = 0;
         while(true){
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+            i++;
             try {
                 Token request = null;
                 try {
                     request = ((Token) ois.readObject());
+                    participant.logger.messageReceived(participant.getPport(), request.request + " loop -> " + i
+
+                    + " from " + this.toString());
+
+
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
 
                 if(request instanceof Token.Votes){
-                    participant.logger.messageReceived(otherPort, request.request);
-                    List<Vote> votes = new ArrayList<>();
+                    List<Vote> votesForLogger = new ArrayList<>();
+
+                    if(i==1){
+                        this.otherPort = ((Token.Votes) request).votes.get(0).getParticipantPort();
+                    }
+                    //LIST for logger
                     ((Token.Votes) request).votes.forEach(v -> {
-                        votes.add(new Vote(v.getParticipantPort(), v.getVote()));
+                        votesForLogger.add(new Vote(v.getParticipantPort(), v.getVote()));
                     });
-                    participant.logger.votesReceived(otherPort, votes);
-                    Token.log(votes);
+                    participant.logger.votesReceived(otherPort, votesForLogger);
+
+
+                    // SET for b-delivery
+                    ((Token.Votes) request).votes.forEach(v -> {
+                        votesReceived.add(new Vote(v.getParticipantPort(), v.getVote()));
+                    });
+
+                    Token.log(votesReceived);
                 }else{
                     System.out.println(request.request);
                 }
 
-            } catch (IOException e) {
-                //e.printStackTrace();
+            } catch (EOFException e){
                 System.err.println("Closing connection with " + otherPort);
                 close();
+                this.participant.removeParticipant(this);
+                return;
+            } catch (IOException e ) {
+                System.err.println("Closing connection with " + otherPort);
+                this.participant.removeParticipant(this);
+                close();
+                return;
+
             }
         }
+
     }
 
-    /**
-     * Wait the ID of the other participant that wants to connect to this {@code participant}
-     * @return the ID of the other participant
-     */
-    public Integer waitOtherPort() {
-        Token.P2P p2pRequest = null;
-        try {
-            p2pRequest = ((Token.P2P) ois.readObject());
-            participant.logger.messageReceived(p2pRequest.id, p2pRequest.request);
-            this.otherPort = p2pRequest.id;
-            return p2pRequest.id;
-        } catch (IOException e) {
-            e.printStackTrace();
-            close();
-        } catch (ClassNotFoundException e) {
-            System.err.println("Unknown participant did not send its id.");
-            return null;
-        }
-        return null;
+
+    public Queue<Vote> getVotesReceived() {
+        return votesReceived;
+    }
+
+    public void setOtherPort(int otherPort) {
+        this.otherPort = otherPort;
     }
 }

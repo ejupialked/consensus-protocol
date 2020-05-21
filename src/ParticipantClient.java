@@ -1,12 +1,11 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class ParticipantClient extends Thread {
-
+public class ParticipantClient {
     private Socket pConnection;
     private ObjectOutputStream oos;
     private Participant participant;
@@ -16,19 +15,9 @@ public class ParticipantClient extends Thread {
         this.participant = participant;
         this.otherPort = otherPort;
         this.pConnection = connect(otherPort, host);
+        participant.logger.connectionEstablished(otherPort);
+        this.participant.getGroup().put(otherPort, this);
         initStreams();
-        sendP2PRequest();
-        Token.log("end init connection with " + otherPort);
-    }
-
-    private void sendP2PRequest() {
-        sendMessage(new Token().new P2P(participant.getPport()));
-    }
-
-    @Override
-    public void run() {
-        //consensus algorithm
-       // sendVote(new Token().new Votes(participant.getAllVotes()));
     }
 
     private void initStreams() {
@@ -43,8 +32,6 @@ public class ParticipantClient extends Thread {
         Socket socket = null;
         try {
             socket = new Socket(host, port);
-            Token.log("connetcted with " + port);
-            participant.logger.connectionEstablished(port);
         } catch (UnknownHostException e) {
             System.exit(0);
         } catch (IOException ex){
@@ -65,16 +52,19 @@ public class ParticipantClient extends Thread {
         sendMessage(votes);
     }
 
+    public int getOtherPort() {
+        return otherPort;
+    }
+
     public void sendMessage(Token message){
         try {
-            Token.log("Sending this message: " + message.request);
             oos.writeObject(message);
+            participant.logger.messageSent(otherPort, message.request);
             oos.flush();
-            Token.log("Sent!");
-
+        } catch (SocketException e){
+            participant.removeParticipant(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }
