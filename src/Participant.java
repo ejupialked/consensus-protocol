@@ -159,12 +159,23 @@ public class Participant implements Runnable {
 
             Token.sleep(timeout);
 
+            Collection<String> received = new TreeSet<String>();
+            Collection<String> next = new TreeSet<String>();
 
             for(OtherParticipantHandler o: p2pHandler) {
                 while(!o.getVotesReceived().isEmpty()){
-                    roundVotes.get(r + 1).add(o.getVotesReceived().remove());
+                    Vote voteToAdd = o.getVotesReceived().remove();
+                    received.add(voteToAdd.toString());
                 }
             }
+
+            roundVotes.get(r+1).forEach(v -> next.add(v.toString()));
+            received.addAll(next);
+
+            List<Vote> newVoteList = new ArrayList<>();
+
+            //received.forEach(v -> newVoteList.add(new Vote(v));
+
 
             if(r == 2 && pport == 1111) {
                 roundVotes.get(r+1).add(new Vote(0000, "B"));
@@ -319,6 +330,16 @@ public class Participant implements Runnable {
     }
 
 
+    // <2334 B>
+
+    public static Vote getVoteFromString(String vote){
+        int id = Integer.parseInt(vote.substring(1,vote.indexOf(",")));
+        String v = vote.substring(vote.indexOf(" ") , vote.length()-1);
+
+
+
+        return new Vote(id, vote);
+    }
 
     public static void main(String[] args) {
         if(args.length != 4){
@@ -341,9 +362,12 @@ public class Participant implements Runnable {
                 e.printStackTrace();
             }
 
-            Participant participant = new Participant(cport, lport, pport, timeout);
-            Thread participantServer = new Thread(participant);
-            participantServer.start();
+            String s = "<10203, B>";
+            System.out.println(Participant.getVoteFromString(s).toString());
+
+            //Participant participant = new Participant(cport, lport, pport, timeout);
+            //Thread participantServer = new Thread(participant);
+           // participantServer.start();
         }
     }
 
