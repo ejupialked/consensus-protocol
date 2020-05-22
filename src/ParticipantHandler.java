@@ -65,6 +65,7 @@ public class ParticipantHandler extends Thread {
 
                 if(request instanceof Token.Outcome){
                     System.out.println(((Token.Outcome) request).outcome);
+                    coordinator.logger.outcomeReceived(id, ((Token.Outcome) request).outcome);
                 }else{
                     System.out.println(request.request);
                 }
@@ -91,6 +92,7 @@ public class ParticipantHandler extends Thread {
         }
         return null;
     }
+
 
     public void setID(int id) {
         this.id = id;

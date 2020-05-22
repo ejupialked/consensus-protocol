@@ -57,9 +57,7 @@ public class OtherParticipantHandler extends Thread {
                 Token request = null;
                 try {
                     request = ((Token) ois.readObject());
-                    participant.logger.messageReceived(participant.getPport(), request.request + " loop -> " + i
-
-                    + " from " + this.toString());
+                    participant.logger.messageReceived(participant.getPport(), request.request);
 
 
                 } catch (ClassNotFoundException e) {
@@ -84,7 +82,7 @@ public class OtherParticipantHandler extends Thread {
                         votesReceived.add(new Vote(v.getParticipantPort(), v.getVote()));
                     });
 
-                    Token.log(votesReceived);
+                    Token.log("From " + otherPort +" " +votesReceived);
                 }else{
                     System.out.println(request.request);
                 }

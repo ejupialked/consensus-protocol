@@ -5,13 +5,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Coordinator implements Runnable {
+
+    private UDPLoggerClient udpLoggerClient;
+
     private final int port; // Port number that the Coordinator is listening on
     private final int lport; // Port number of the logger server
     private final int parts; // Number of participants expected
     private final long timeout;
     private final List<String> options; // Set of options
 
-    private CoordinatorLogger logger;
+    CoordinatorLogger logger;
 
     private int noParticipantsJoined;
     private boolean isRunning;
@@ -137,7 +140,7 @@ public class Coordinator implements Runnable {
             System.out.println("Options for voting: " + options);
 
             try {
-                CoordinatorLogger.initLogger(000000, port, ((int) timeout));
+                CoordinatorLogger.initLogger(lport, port, ((int) timeout));
             } catch (IOException e) {
                 e.printStackTrace();
             }

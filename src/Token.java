@@ -78,7 +78,7 @@ public class Token implements Serializable {
 
         private String voteRequest(List<SingleVote> votes) {
             StringBuilder req = new StringBuilder();
-            req.append("VOTE");
+            req.append("VOTE ");
             //VOTE port i vote 1 port 2 vote 2 ...port n vote n
 
             votes.forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
