@@ -8,13 +8,13 @@ import java.net.SocketException;
 
 public class UDPLoggerServer extends Thread {
     private String ACK = "ACK";
-    private int port;
     private DatagramSocket socket;
     private byte[] buf;
     private PrintStream ps;
-
+    private boolean isRunning;
 
     UDPLoggerServer(int port){
+        this.isRunning = true;
         try {
             this.socket = new DatagramSocket(port);
             this.buf = new byte[1024];
@@ -27,11 +27,11 @@ public class UDPLoggerServer extends Thread {
     @Override
     public void run() {
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
-            while(true) {
+            while(isRunning) {
                 try {
                     socket.receive(packet);
                     String logMessage = new String(packet.getData(), 0, packet.getLength());
+                    logMessage = logMessage.replaceFirst(" ", String.valueOf( " " + System.currentTimeMillis() + " "));
                     ps.println(logMessage);
                     System.out.println(logMessage);
                 } catch (IOException e) {

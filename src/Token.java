@@ -1,6 +1,5 @@
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 public class Token implements Serializable {
     String request;
@@ -84,9 +83,6 @@ public class Token implements Serializable {
             votes.forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
             return req.toString();
         }
-
-
-
     }
 
     class Outcome extends Token {
@@ -106,9 +102,7 @@ public class Token implements Serializable {
             participants.forEach(p -> req.append(p).append(" "));
             return req.toString();
         }
-
     }
-
 
     public static void sleep(long millis){
         try {
@@ -144,6 +138,4 @@ class SingleVote implements Serializable {
     public String toString() {
         return "<" + participantPort + ", " + vote + ">";
     }
-
-
 }

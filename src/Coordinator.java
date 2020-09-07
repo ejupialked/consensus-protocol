@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 public class Coordinator implements Runnable {
 
-    private UDPLoggerClient udpLoggerClient;
-
     private final int port; // Port number that the Coordinator is listening on
     private final int lport; // Port number of the logger server
     private final int parts; // Number of participants expected
@@ -16,8 +14,6 @@ public class Coordinator implements Runnable {
 
     CoordinatorLogger logger;
 
-    private int noParticipantsJoined;
-    private boolean isRunning;
     private Map<Integer, ParticipantHandler> participants;
     private ServerSocket ss;
 
@@ -34,7 +30,7 @@ public class Coordinator implements Runnable {
     private void initConnection() {
         try {
             ss = new ServerSocket(port);
-            logger.startedListening(port);
+            logger.startedListening(ss.getLocalPort());
         } catch (IOException e) {
             System.err.println("Could not listen on port" + port);
         }
@@ -48,18 +44,19 @@ public class Coordinator implements Runnable {
 
         participants.put(join.port, ph);
         ph.setID(join.port);
+        logger.messageReceived(ph.getTcpPort(), join.request);
         logger.joinReceived(join.port);
         return true;
     }
 
-    private void unregister(int id){
+    public void unregister(int id){
         participants.remove(id);
     }
 
     @Override
     public void run() {
         initConnection();
-        waitParticipants();
+        waitJoinRequests();
         sendDetails();
         sendVoteOptions();
     }
@@ -70,12 +67,12 @@ public class Coordinator implements Runnable {
      */
     private void sendDetails() {
         List<Integer> listParticipant = new ArrayList<Integer>(participants.keySet());
-
         participants.values().forEach(p -> {
             Token.Details tokenDetails = new Token().new Details(
                     listParticipant.stream().filter(p1 -> !p1.equals(p.getIdentifier()))
                     .collect(Collectors.toList()));
              p.sendMessage(tokenDetails);
+             logger.messageSent(p.getTcpPort(), tokenDetails.request);
              logger.detailsSent(p.getIdentifier(), tokenDetails.ports);
         });
     }
@@ -87,16 +84,17 @@ public class Coordinator implements Runnable {
         Token.VoteOptions tokenVote = new Token().new VoteOptions(options);
         participants.values().forEach(p -> {
             p.sendMessage(tokenVote);
+            logger.messageSent(p.getTcpPort(), tokenVote.request);
             logger.voteOptionsSent(p.getIdentifier(), tokenVote.voteOptions);
         });
     }
 
-    private void waitParticipants() {
+    private void waitJoinRequests() {
         while(true) {
             Socket participant = null;
             try {
                 participant = ss.accept();
-                logger.connectionAccepted(port);
+                logger.connectionAccepted(participant.getPort());
                 ParticipantHandler ph = new ParticipantHandler(participant, this);
                 Token.Join req = (Token.Join) ph.waiJoinRequest();
                 if(req != null){
@@ -109,16 +107,16 @@ public class Coordinator implements Runnable {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                System.exit(0);
             }
         }
-
         System.out.println("Reached max number of participant");
     }
 
+    public Map<Integer, ParticipantHandler> getParticipants() {
+        return participants;
+    }
 
     public static void main(String[] args) {
-
         if(args.length < 5){
             System.err.println("Unable to create Coordinator." + " Insert the correct number of arguments.");
         } else {

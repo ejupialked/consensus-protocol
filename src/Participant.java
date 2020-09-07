@@ -5,14 +5,12 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class Participant implements Runnable {
-
     ParticipantLogger logger;
 
     /* arguments **************/
@@ -22,15 +20,17 @@ public class Participant implements Runnable {
     private final long timeout;
     /**************************/
 
-    private int f;
+    private int f; //max no. of failures
     private List<String> options;
     private List<Integer> participantsDetails;
     private Map<Integer, List<Vote>> roundVotes;
     private Vote myVote;
     private String decidedState;
 
+    boolean isOutcomeSent;
+
     /*** Coordinator connection ***/
-    private Socket cSocket;
+    private Socket cConnection;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private boolean isRunning;
@@ -40,11 +40,8 @@ public class Participant implements Runnable {
     private InetAddress host;
     private ServerSocket participantServer;
     private List<OtherParticipantHandler> p2pHandler; // clients of participantServer (this)
-
     private Map<Integer, ParticipantClient> group; //connections to other participants
     /****************************************************/
-
-
 
     Participant(int cport, int lport, int pport, long timeout){
         this.cport = cport;
@@ -55,8 +52,7 @@ public class Participant implements Runnable {
         this.p2pHandler = Collections.synchronizedList(new ArrayList<>());
         this.group = Collections.synchronizedMap(new HashMap<>());
         this.logger = ParticipantLogger.getLogger();
-
-
+        this.isOutcomeSent = false;
 
         try {
             this.host = InetAddress.getLocalHost();
@@ -64,15 +60,14 @@ public class Participant implements Runnable {
             e.printStackTrace();
         }
 
-        this.cSocket = connect(this.cport, host);
-        logger.connectionEstablished(this.cport);
+        this.cConnection = connect(this.cport, host);
+        logger.connectionEstablished(cConnection.getPort());
 
         listenConnections();
 
-
         try {
-            oos = new ObjectOutputStream(cSocket.getOutputStream());
-            ois = new ObjectInputStream(cSocket.getInputStream());
+            oos = new ObjectOutputStream(cConnection.getOutputStream());
+            ois = new ObjectInputStream(cConnection.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,10 +78,10 @@ public class Participant implements Runnable {
         try {
             socket = new Socket(host, port);
         } catch (UnknownHostException e) {
-            log("Host Unknown. Quitting");
+            System.err.println("Host Unknown. Quitting");
             System.exit(0);
         } catch (IOException ex){
-            log("Could not Connect to " + host + ":" + port + ".  Trying again...");
+            System.err.println("Could not Connect to " + host + ":" + port + ".  Trying again...");
             delay(1000);
             return connect(port, host);
         }
@@ -101,18 +96,14 @@ public class Participant implements Runnable {
         }
     }
 
-    private void log(String log){
-        System.out.println(log);
-    }
-
     private void close() {
         try {
             oos.close();
             ois.close();
-            cSocket.close();
+            cConnection.close();
             isRunning = false;
         } catch (IOException e) {
-            log("Closing connection...");
+            System.out.println("Closing connection...");
         }
     }
 
@@ -125,14 +116,13 @@ public class Participant implements Runnable {
         waitClients();
 
         while(true){
-            Token.sleep(1000);
             if(group.size() == participantsDetails.size()){
                 System.out.println("starting consensus");
+                Token.sleep(500);
                 runConsensusAlgorithm();
-                return;
+                System.exit(0);
             }
         }
-
     }
 
     private void runConsensusAlgorithm() {
@@ -154,10 +144,9 @@ public class Participant implements Runnable {
             System.out.println("Multicasting: " + newVotes);
             roundVotes.put(r+1, new ArrayList<>());
 
-            Token.sleep(timeout);
-
             Collection<String> received = new TreeSet<String>();
             Collection<String> next = new TreeSet<String>();
+            Token.sleep(getTimeout());
 
             for(OtherParticipantHandler o: p2pHandler) {
                 while(!o.getVotesReceived().isEmpty()){
@@ -171,9 +160,8 @@ public class Participant implements Runnable {
             List<Vote> newVoteList = new ArrayList<>();
             received.forEach(v -> newVoteList.add(getVoteFromString(v)));
             roundVotes.put(r+1, newVoteList);
-
-
             logger.endRound(r);
+            Token.sleep(1000);
         }
 
         StringBuilder req = new StringBuilder();
@@ -181,7 +169,6 @@ public class Participant implements Runnable {
         //VOTE port i vote 1 port 2 vote 2 ...port n vote n
         roundVotes.get(f+1).forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
         System.out.println(req);
-
 
         this.decidedState = maximum(roundVotes.get(f+1));
 
@@ -195,6 +182,11 @@ public class Participant implements Runnable {
         System.out.println(outcome);
 
         sendOutcome(outcome);
+        this.isOutcomeSent = true;
+
+        p2pHandler.forEach(OtherParticipantHandler::close);
+        System.exit(0);
+       // group.values().forEach(ParticipantClient::close);
 
     }
 
@@ -202,7 +194,7 @@ public class Participant implements Runnable {
         try {
             oos.writeObject(outcome);
             oos.flush();
-            logger.messageSent(cport, outcome.request);
+            logger.messageSent(cConnection.getPort(), outcome.request);
             logger.outcomeNotified(outcome.outcome, outcome.participants);
         } catch (IOException e) {
             e.printStackTrace();
@@ -227,6 +219,7 @@ public class Participant implements Runnable {
                     max = e;
             }
 
+            System.err.println(map);
             return max.getKey();
     }
 
@@ -251,9 +244,11 @@ public class Participant implements Runnable {
 
         if(!votesToSend.votes.isEmpty()) {
             group.forEach(m -> {
+                if(this.pport == 1111)
+                    Token.sleep(10000);
                 m.sendMessage(votesToSend);
-                logger.messageSent(pport, votesToSend.request);
-                logger.votesSent(m.getOtherPort(), votesForLogger);
+                logger.messageSent(m.getTcpPort(), votesToSend.request);
+                logger.votesSent(m.getId(), votesForLogger);
             });
         }
     }
@@ -270,8 +265,9 @@ public class Participant implements Runnable {
 
     private void establishConnections() {
         //Connect to other participants (servers)
-        for(Integer otherP: participantsDetails){
-                ParticipantClient client = new ParticipantClient(otherP, host, this);
+        for(Integer id: participantsDetails){
+                ParticipantClient client = new ParticipantClient(id, host, this);
+
         }
     }
 
@@ -317,11 +313,11 @@ public class Participant implements Runnable {
                 if(request instanceof Token.Details){
                     this.participantsDetails = ((Token.Details) request).ports;
                     this.f = participantsDetails.size();
-                    logger.messageReceived(cport, request.request);
+                    logger.messageReceived(cConnection.getPort(), request.request);
                     logger.detailsReceived(participantsDetails);
                 }else if(request instanceof Token.VoteOptions) {
                     this.options = ((Token.VoteOptions) request).voteOptions;
-                    logger.messageReceived(cport, request.request);
+                    logger.messageReceived(cConnection.getPort(), request.request);
                     logger.voteOptionsReceived(options);
                     break;
                 } else{
@@ -339,7 +335,7 @@ public class Participant implements Runnable {
             Token.Join join = new Token().new Join(pport);
             oos.writeObject(join);
             oos.flush();
-            logger.messageSent(cport, join.request);
+            logger.messageSent(cConnection.getPort(), join.request);
             logger.joinSent(cport);
         } catch (IOException e) {
             e.printStackTrace();

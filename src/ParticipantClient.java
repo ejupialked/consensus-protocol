@@ -2,21 +2,22 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class ParticipantClient {
     private Socket pConnection;
     private ObjectOutputStream oos;
     private Participant participant;
-    private int otherPort;
+    private int id;
+    private int tcpPort;
 
-    ParticipantClient(Integer otherPort, InetAddress host, Participant participant){
+    ParticipantClient(Integer id, InetAddress host, Participant participant){
         this.participant = participant;
-        this.otherPort = otherPort;
-        this.pConnection = connect(otherPort, host);
-        participant.logger.connectionEstablished(otherPort);
-        this.participant.getGroup().put(otherPort, this);
+        this.id = id;
+        this.pConnection = connect(id, host);
+        this.tcpPort = pConnection.getPort();
+        this.participant.logger.connectionEstablished(pConnection.getPort());
+        this.participant.getGroup().put(id, this);
         initStreams();
     }
 
@@ -25,6 +26,9 @@ public class ParticipantClient {
             oos = new ObjectOutputStream(pConnection.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
+            if(!participant.isOutcomeSent)
+                participant.logger.participantCrashed(id);
+            close();
         }
     }
 
@@ -37,7 +41,7 @@ public class ParticipantClient {
         } catch (IOException ex){
             System.err.println("Could not Connect to " + host + ":" + port + ".  Trying again...");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -46,25 +50,34 @@ public class ParticipantClient {
         return socket;
     }
 
-    public void sendVote(Token.Votes votes){
-        votes.setSender(participant.getPport());
-        votes.setReceiver(otherPort);
-        sendMessage(votes);
-    }
-
-    public int getOtherPort() {
-        return otherPort;
+    public int getId() {
+        return id;
     }
 
     public void sendMessage(Token message){
         try {
             oos.writeObject(message);
-            participant.logger.messageSent(otherPort, message.request);
+            participant.logger.messageSent(pConnection.getPort(), message.request);
             oos.flush();
-        } catch (SocketException e){
+        } catch (IOException e){
+            if(!participant.isOutcomeSent)
+                participant.logger.participantCrashed(id);
+            close();
+        }
+    }
+
+
+    public void close(){
+        try {
+            oos.close();
+            pConnection.close();
             participant.removeParticipant(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int getTcpPort() {
+        return tcpPort;
     }
 }

@@ -1,6 +1,4 @@
-
 public class Vote {
-
 	private final int participantPort;
 	private final String vote;
 	
@@ -21,6 +19,4 @@ public class Vote {
 	public String toString() {
 		return "<" + participantPort + ", " + vote + ">";
 	}
-	
-	
 }

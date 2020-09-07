@@ -2,17 +2,13 @@ import java.io.IOException;
 import java.net.*;
 
 public class UDPLoggerClient {
-	
 	private final int loggerServerPort;
 	private final int processId;
 	private final int timeout;
-
 	private InetAddress host;
 	private DatagramPacket ack;
-
 	private String ACK = "ACK";
 	private byte[] bufACK = ACK.getBytes();
-
 
 	/**
 	 * @param loggerServerPort the UDP port where the Logger process is listening o
@@ -32,18 +28,6 @@ public class UDPLoggerClient {
 			e.printStackTrace();
 		}
 	}
-	
-	public int getLoggerServerPort() {
-		return loggerServerPort;
-	}
-
-	public int getProcessId() {
-		return processId;
-	}
-	
-	public int getTimeout() {
-		return timeout;
-	}
 
 	/**
 	 * Sends a log message to the Logger process
@@ -59,7 +43,6 @@ public class UDPLoggerClient {
 			sendAndWaitACK(0, socket, packet);
 	}
 
-
 	public void sendAndWaitACK(int attempt, DatagramSocket socket, DatagramPacket packet) throws IOException {
 		if(attempt == 3){
 			throw new IOException();
@@ -71,9 +54,8 @@ public class UDPLoggerClient {
 			socket.receive(ack);
 			System.out.println("receive DatagramPacket " + new String(ack.getData()));
 		}catch (SocketTimeoutException s) {
-			System.out.println("resend");
+			System.out.println("resend attemp " + attempt );
 			sendAndWaitACK(attempt+1, socket, packet);
 		}
 	}
-
 }
