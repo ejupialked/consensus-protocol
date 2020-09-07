@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b6200fe3-70eb-4e8d-95ff-28f7e3b51c78" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/UDPLoggerServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coordinator_1590085362431.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/coordinator_1590085448072.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/coordinator_1590085513676.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/coordinator_1590086056051.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/consensus-protocol/Coordinator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/consensus-protocol/Coordinator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/consensus-protocol/OtherParticipantHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/consensus-protocol/OtherParticipantHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/consensus-protocol/Participant.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/consensus-protocol/Participant.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/consensus-protocol/ParticipantHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/consensus-protocol/ParticipantHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/consensus-protocol/UDPLoggerClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/consensus-protocol/UDPLoggerClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_1111_1590085356398.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_1111_1590085450984.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_1111_1590085515923.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_1111_1590086048362.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_2222_1590085354140.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_2222_1590085441466.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_2222_1590085507135.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_2222_1590086043099.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_3333_1590085360313.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_3333_1590085445980.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_3333_1590085511797.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_3333_1590086053394.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_4444_1590085358355.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_4444_1590085443859.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_4444_1590085509951.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/participant_4444_1590086050807.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Coordinator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Coordinator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/OtherParticipantHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/OtherParticipantHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Participant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Participant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ParticipantHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ParticipantHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Token.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/UDPLoggerClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/UDPLoggerClient.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Alked Ejupi &lt;ae7g18@soton.ac.uk&gt;" />
+        <option value="Alked &lt;ae7g18@soton.ac.uk&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1c2xXFuMq9Fz2P1O3QWfXxXes3l" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Compound.Run multiple participant">
+    <configuration name="Coordinator (1)" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="Coordinator" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 2 500 A B C" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Coordinator" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="1.8" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="Coordinator" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 3 500 A B C" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UDPLoggerClient 2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="UDPLoggerClient" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="9999 2222 400" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UDPLoggerClient 3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="UDPLoggerClient" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="9999 3333 400" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UDPLoggerClient" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="UDPLoggerClient" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="9999 1111 400" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UDPLoggerServer" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="UDPLoggerServer" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12344" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="p1" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Participant" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 1111 1000" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="p2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Participant" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 2222 1000" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="p3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Participant" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 3333 1000" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="p4" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Participant" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 4444 1000" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="p5" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Participant" />
+      <module name="consensus-protocol" />
+      <option name="PROGRAM_PARAMETERS" value="12345 12344 5555 1000" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run 1 part" type="CompoundRunConfigurationType">
+      <toRun name="Coordinator (1)" type="Application" />
+      <toRun name="p2" type="Application" />
+      <toRun name="p1" type="Application" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Run multiple participant" type="CompoundRunConfigurationType">
+      <toRun name="p1" type="Application" />
+      <toRun name="p2" type="Application" />
+      <toRun name="p3" type="Application" />
+      <toRun name="Coordinator" type="Application" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UDPs" type="CompoundRunConfigurationType">
+      <toRun name="UDPLoggerClient" type="Application" />
+      <toRun name="UDPLoggerClient 2" type="Application" />
+      <toRun name="UDPLoggerClient 3" type="Application" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="CompoundRunConfigurationType">
+      <toRun name="UDPLoggerClient" type="Application" />
+      <toRun name="UDPLoggerClient 2" type="Application" />
+      <toRun name="UDPLoggerClient 3" type="Application" />
+      <method v="2" />
+    </configuration>
+    <configuration name="script.sh" type="ShConfigurationType">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/src/script.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.p1" />
+      <item itemvalue="Application.p2" />
+      <item itemvalue="Application.p3" />
+      <item itemvalue="Application.p4" />
+      <item itemvalue="Application.p5" />
+      <item itemvalue="Application.Coordinator" />
+      <item itemvalue="Application.Coordinator (1)" />
+      <item itemvalue="Application.UDPLoggerClient 2" />
+      <item itemvalue="Application.UDPLoggerClient 3" />
+      <item itemvalue="Application.UDPLoggerServer" />
+      <item itemvalue="Application.UDPLoggerClient" />
+      <item itemvalue="Compound.UDPs" />
+      <item itemvalue="Compound.Run multiple participant" />
+      <item itemvalue="Compound.Run 1 part" />
+      <item itemvalue="Shell Script.script.sh" />
+    </list>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b6200fe3-70eb-4e8d-95ff-28f7e3b51c78" name="Default Changelist" comment="" />
+      <created>1589740527051</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1589740527051</updated>
+      <workItem from="1589740532592" duration="2715000" />
+      <workItem from="1589885800087" duration="24102000" />
+      <workItem from="1589985569017" duration="28987000" />
+      <workItem from="1590048477752" duration="28809000" />
+      <workItem from="1590086502126" duration="122000" />
+      <workItem from="1590086740473" duration="20000" />
+      <workItem from="1590093212454" duration="14567000" />
+    </task>
+    <task id="LOCAL-00001" summary="Modify script for macOS">
+      <created>1589743132210</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1589743132210</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Create Token class">
+      <created>1589891990982</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1589891990982</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Update project">
+      <created>1589928678469</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1589928678469</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Implement P2P connections">
+      <created>1590024339097</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1590024339097</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implement Consensus algorithm">
+      <created>1590084425953</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1590084425953</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Modify script for macOS" />
+    <MESSAGE value="Create Token class" />
+    <MESSAGE value="Update project" />
+    <MESSAGE value="Implement P2P connections" />
+    <MESSAGE value="Implement Consensus algorithm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement Consensus algorithm" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="448" y="96" key="#Project_Structure" timestamp="1590086759832">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="448" y="96" key="#Project_Structure/0.23.1920.984@0.23.1920.984" timestamp="1590086759832" />
+    <state x="725" y="279" width="855" height="546" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590107705054">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state x="476" y="230" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1590055651386" />
+    <state x="725" y="279" width="855" height="546" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.982@0.23.1920.982" timestamp="1590107705054" />
+    <state x="510" y="189" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.984@0.23.1920.984" timestamp="1590086573549" />
+    <state x="849" y="206" width="855" height="538" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.986@0.23.1920.986" timestamp="1589993556590" />
+    <state x="849" y="206" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.988@0.23.1920.988" timestamp="1589992139040" />
+    <state x="930" y="206" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.989@0.23.1920.989" timestamp="1589924133409" />
+    <state x="717" y="218" key="#com.intellij.ide.util.MemberChooser" timestamp="1589926599142">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="717" y="218" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1589926599142" />
+    <state x="717" y="221" key="#com.intellij.ide.util.MemberChooser/0.23.1920.982@0.23.1920.982" timestamp="1589892634298" />
+    <state x="557" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1590023549232">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="557" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1590023549232" />
+    <state x="698" y="269" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog" timestamp="1590012408201">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="698" y="269" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1590012408201" />
+    <state x="698" y="268" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog/0.23.1920.984@0.23.1920.984" timestamp="1589995193586" />
+    <state x="567" y="90" key="CommitChangelistDialog2" timestamp="1590084425687">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="567" y="74" key="CommitChangelistDialog2/0.0.1920.1080@0.0.1920.1080" timestamp="1590024338534" />
+    <state x="567" y="90" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1589891990679" />
+    <state x="567" y="90" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1590084425687" />
+    <state x="567" y="90" key="CommitChangelistDialog2/0.23.1920.988@0.23.1920.988" timestamp="1589743131944" />
+    <state x="567" y="91" key="CommitChangelistDialog2/0.23.1920.989@0.23.1920.989" timestamp="1589928718311" />
+    <state width="669" height="464" key="DebuggerActiveHint" timestamp="1590094229190">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="561" height="510" key="DebuggerActiveHint/0.0.1920.1080@0.0.1920.1080" timestamp="1590070279282" />
+    <state width="669" height="464" key="DebuggerActiveHint/0.23.1920.982@0.23.1920.982" timestamp="1590094229190" />
+    <state width="669" height="464" key="DebuggerActiveHint/0.23.1920.984@0.23.1920.984" timestamp="1590088361647" />
+    <state width="561" height="466" key="DebuggerActiveHint/0.23.1920.986@0.23.1920.986" timestamp="1590074521920" />
+    <state width="479" height="466" key="DebuggerActiveHint/0.23.1920.989@0.23.1920.989" timestamp="1589922885843" />
+    <state width="479" height="467" key="DebuggerActiveHint/0.23.1920.991@0.23.1920.991" timestamp="1589924395448" />
+    <state x="180" y="123" width="1333" height="731" key="DiffContextDialog" timestamp="1589986606078">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="180" y="123" width="1333" height="731" key="DiffContextDialog/0.23.1920.984@0.23.1920.984" timestamp="1589986606078" />
+    <state width="1878" height="543" key="GridCell.Tab.0.bottom" timestamp="1590108349290">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="308" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1590070761487" />
+    <state width="1878" height="543" key="GridCell.Tab.0.bottom/0.23.1920.982@0.23.1920.982" timestamp="1590108349290" />
+    <state width="1878" height="756" key="GridCell.Tab.0.bottom/0.23.1920.984@0.23.1920.984" timestamp="1590088732163" />
+    <state width="1878" height="277" key="GridCell.Tab.0.bottom/0.23.1920.986@0.23.1920.986" timestamp="1590074527454" />
+    <state width="1537" height="276" key="GridCell.Tab.0.bottom/0.23.1920.988@0.23.1920.988" timestamp="1589926200242" />
+    <state width="1537" height="388" key="GridCell.Tab.0.bottom/0.23.1920.989@0.23.1920.989" timestamp="1589928722547" />
+    <state width="1537" height="276" key="GridCell.Tab.0.bottom/0.23.1920.991@0.23.1920.991" timestamp="1589924608344" />
+    <state width="1878" height="543" key="GridCell.Tab.0.center" timestamp="1590108349288">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="308" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1590070761485" />
+    <state width="1878" height="543" key="GridCell.Tab.0.center/0.23.1920.982@0.23.1920.982" timestamp="1590108349288" />
+    <state width="1878" height="756" key="GridCell.Tab.0.center/0.23.1920.984@0.23.1920.984" timestamp="1590088732162" />
+    <state width="1878" height="277" key="GridCell.Tab.0.center/0.23.1920.986@0.23.1920.986" timestamp="1590074527453" />
+    <state width="1537" height="276" key="GridCell.Tab.0.center/0.23.1920.988@0.23.1920.988" timestamp="1589926200240" />
+    <state width="1537" height="388" key="GridCell.Tab.0.center/0.23.1920.989@0.23.1920.989" timestamp="1589928722546" />
+    <state width="1537" height="276" key="GridCell.Tab.0.center/0.23.1920.991@0.23.1920.991" timestamp="1589924608343" />
+    <state width="1878" height="543" key="GridCell.Tab.0.left" timestamp="1590108349288">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="308" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1590070761484" />
+    <state width="1878" height="543" key="GridCell.Tab.0.left/0.23.1920.982@0.23.1920.982" timestamp="1590108349288" />
+    <state width="1878" height="756" key="GridCell.Tab.0.left/0.23.1920.984@0.23.1920.984" timestamp="1590088732162" />
+    <state width="1878" height="277" key="GridCell.Tab.0.left/0.23.1920.986@0.23.1920.986" timestamp="1590074527452" />
+    <state width="1537" height="276" key="GridCell.Tab.0.left/0.23.1920.988@0.23.1920.988" timestamp="1589926200239" />
+    <state width="1537" height="388" key="GridCell.Tab.0.left/0.23.1920.989@0.23.1920.989" timestamp="1589928722545" />
+    <state width="1537" height="276" key="GridCell.Tab.0.left/0.23.1920.991@0.23.1920.991" timestamp="1589924608343" />
+    <state width="1878" height="543" key="GridCell.Tab.0.right" timestamp="1590108349289">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="308" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1590070761486" />
+    <state width="1878" height="543" key="GridCell.Tab.0.right/0.23.1920.982@0.23.1920.982" timestamp="1590108349289" />
+    <state width="1878" height="756" key="GridCell.Tab.0.right/0.23.1920.984@0.23.1920.984" timestamp="1590088732163" />
+    <state width="1878" height="277" key="GridCell.Tab.0.right/0.23.1920.986@0.23.1920.986" timestamp="1590074527453" />
+    <state width="1537" height="276" key="GridCell.Tab.0.right/0.23.1920.988@0.23.1920.988" timestamp="1589926200241" />
+    <state width="1537" height="388" key="GridCell.Tab.0.right/0.23.1920.989@0.23.1920.989" timestamp="1589928722546" />
+    <state width="1537" height="276" key="GridCell.Tab.0.right/0.23.1920.991@0.23.1920.991" timestamp="1589924608344" />
+    <state width="938" height="481" key="GridCell.Tab.1.bottom" timestamp="1590104103767">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="451" key="GridCell.Tab.1.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1590070736213" />
+    <state width="938" height="481" key="GridCell.Tab.1.bottom/0.23.1920.982@0.23.1920.982" timestamp="1590104103767" />
+    <state width="1878" height="384" key="GridCell.Tab.1.bottom/0.23.1920.984@0.23.1920.984" timestamp="1590088730934" />
+    <state width="1878" height="277" key="GridCell.Tab.1.bottom/0.23.1920.986@0.23.1920.986" timestamp="1590074527455" />
+    <state width="1537" height="276" key="GridCell.Tab.1.bottom/0.23.1920.988@0.23.1920.988" timestamp="1589926183760" />
+    <state width="1537" height="388" key="GridCell.Tab.1.bottom/0.23.1920.989@0.23.1920.989" timestamp="1589928722549" />
+    <state width="1537" height="276" key="GridCell.Tab.1.bottom/0.23.1920.991@0.23.1920.991" timestamp="1589924608346" />
+    <state width="938" height="481" key="GridCell.Tab.1.center" timestamp="1590104103766">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="451" key="GridCell.Tab.1.center/0.0.1920.1080@0.0.1920.1080" timestamp="1590070736212" />
+    <state width="938" height="481" key="GridCell.Tab.1.center/0.23.1920.982@0.23.1920.982" timestamp="1590104103766" />
+    <state width="1878" height="384" key="GridCell.Tab.1.center/0.23.1920.984@0.23.1920.984" timestamp="1590088730933" />
+    <state width="1878" height="277" key="GridCell.Tab.1.center/0.23.1920.986@0.23.1920.986" timestamp="1590074527455" />
+    <state width="1537" height="276" key="GridCell.Tab.1.center/0.23.1920.988@0.23.1920.988" timestamp="1589926183758" />
+    <state width="1537" height="388" key="GridCell.Tab.1.center/0.23.1920.989@0.23.1920.989" timestamp="1589928722548" />
+    <state width="1537" height="276" key="GridCell.Tab.1.center/0.23.1920.991@0.23.1920.991" timestamp="1589924608345" />
+    <state width="938" height="481" key="GridCell.Tab.1.left" timestamp="1590104103766">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="451" key="GridCell.Tab.1.left/0.0.1920.1080@0.0.1920.1080" timestamp="1590070736212" />
+    <state width="938" height="481" key="GridCell.Tab.1.left/0.23.1920.982@0.23.1920.982" timestamp="1590104103766" />
+    <state width="1878" height="384" key="GridCell.Tab.1.left/0.23.1920.984@0.23.1920.984" timestamp="1590088730932" />
+    <state width="1878" height="277" key="GridCell.Tab.1.left/0.23.1920.986@0.23.1920.986" timestamp="1590074527454" />
+    <state width="1537" height="276" key="GridCell.Tab.1.left/0.23.1920.988@0.23.1920.988" timestamp="1589926183757" />
+    <state width="1537" height="388" key="GridCell.Tab.1.left/0.23.1920.989@0.23.1920.989" timestamp="1589928722548" />
+    <state width="1537" height="276" key="GridCell.Tab.1.left/0.23.1920.991@0.23.1920.991" timestamp="1589924608345" />
+    <state width="938" height="481" key="GridCell.Tab.1.right" timestamp="1590104103767">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="1878" height="451" key="GridCell.Tab.1.right/0.0.1920.1080@0.0.1920.1080" timestamp="1590070736213" />
+    <state width="938" height="481" key="GridCell.Tab.1.right/0.23.1920.982@0.23.1920.982" timestamp="1590104103767" />
+    <state width="1878" height="384" key="GridCell.Tab.1.right/0.23.1920.984@0.23.1920.984" timestamp="1590088730933" />
+    <state width="1878" height="277" key="GridCell.Tab.1.right/0.23.1920.986@0.23.1920.986" timestamp="1590074527455" />
+    <state width="1537" height="276" key="GridCell.Tab.1.right/0.23.1920.988@0.23.1920.988" timestamp="1589926183759" />
+    <state width="1537" height="388" key="GridCell.Tab.1.right/0.23.1920.989@0.23.1920.989" timestamp="1589928722549" />
+    <state width="1537" height="276" key="GridCell.Tab.1.right/0.23.1920.991@0.23.1920.991" timestamp="1589924608345" />
+    <state x="469" y="154" key="SettingsEditor" timestamp="1590086548937">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="469" y="154" key="SettingsEditor/0.23.1920.982@0.23.1920.982" timestamp="1589893785727" />
+    <state x="469" y="154" key="SettingsEditor/0.23.1920.984@0.23.1920.984" timestamp="1590086548937" />
+    <state width="500" height="445" key="SwitcherDM" timestamp="1589900766097">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state width="500" height="445" key="SwitcherDM/0.23.1920.982@0.23.1920.982" timestamp="1589900766097" />
+    <state x="562" y="254" key="Vcs.Push.Dialog.v2" timestamp="1590024341186">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="562" y="254" key="Vcs.Push.Dialog.v2/0.0.1920.1080@0.0.1920.1080" timestamp="1590024341186" />
+    <state x="562" y="254" key="Vcs.Push.Dialog.v2/0.23.1920.982@0.23.1920.982" timestamp="1589891995004" />
+    <state x="562" y="255" key="Vcs.Push.Dialog.v2/0.23.1920.988@0.23.1920.988" timestamp="1589743137139" />
+    <state x="100" y="123" width="1720" height="780" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog" timestamp="1589896097289">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state x="100" y="123" width="1720" height="780" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog/0.23.1920.982@0.23.1920.982" timestamp="1589896097289" />
+    <state x="669" y="270" width="586" height="609" key="find.popup" timestamp="1590049478160">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="669" y="270" width="586" height="609" key="find.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1590049478160" />
+    <state x="669" y="269" width="586" height="554" key="find.popup/0.23.1920.984@0.23.1920.984" timestamp="1590001393405" />
+    <state x="669" y="270" width="586" height="490" key="find.popup/0.23.1920.988@0.23.1920.988" timestamp="1589742785763" />
+    <state x="750" y="289" key="refactoring.ChangeSignatureDialog" timestamp="1590058058331">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="750" y="289" key="refactoring.ChangeSignatureDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1590058058331" />
+    <state x="750" y="286" key="refactoring.ChangeSignatureDialog/0.23.1920.982@0.23.1920.982" timestamp="1589892643254" />
+    <state x="625" y="237" key="run.anything.popup" timestamp="1590079705393">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="625" y="237" key="run.anything.popup/0.23.1920.984@0.23.1920.984" timestamp="1590079705393" />
+  </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo typeName="Token$Join" fieldName="sender" />
+      </pinned-members>
+    </pin-to-top-manager>
+  </component>
+</project>

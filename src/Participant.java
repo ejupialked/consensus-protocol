@@ -5,14 +5,12 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class Participant implements Runnable {
-
     ParticipantLogger logger;
 
     /* arguments **************/
@@ -22,14 +20,17 @@ public class Participant implements Runnable {
     private final long timeout;
     /**************************/
 
-    private int f;
+    private int f; //max no. of failures
     private List<String> options;
     private List<Integer> participantsDetails;
-    private Map<Integer, Set<Vote>> roundVotes;
+    private Map<Integer, List<Vote>> roundVotes;
     private Vote myVote;
+    private String decidedState;
+
+    boolean isOutcomeSent;
 
     /*** Coordinator connection ***/
-    private Socket cSocket;
+    private Socket cConnection;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private boolean isRunning;
@@ -39,11 +40,8 @@ public class Participant implements Runnable {
     private InetAddress host;
     private ServerSocket participantServer;
     private List<OtherParticipantHandler> p2pHandler; // clients of participantServer (this)
-
     private Map<Integer, ParticipantClient> group; //connections to other participants
     /****************************************************/
-
-
 
     Participant(int cport, int lport, int pport, long timeout){
         this.cport = cport;
@@ -54,8 +52,7 @@ public class Participant implements Runnable {
         this.p2pHandler = Collections.synchronizedList(new ArrayList<>());
         this.group = Collections.synchronizedMap(new HashMap<>());
         this.logger = ParticipantLogger.getLogger();
-
-
+        this.isOutcomeSent = false;
 
         try {
             this.host = InetAddress.getLocalHost();
@@ -63,15 +60,14 @@ public class Participant implements Runnable {
             e.printStackTrace();
         }
 
-        this.cSocket = connect(this.cport, host);
-        logger.connectionEstablished(this.cport);
+        this.cConnection = connect(this.cport, host);
+        logger.connectionEstablished(cConnection.getPort());
 
         listenConnections();
 
-
         try {
-            oos = new ObjectOutputStream(cSocket.getOutputStream());
-            ois = new ObjectInputStream(cSocket.getInputStream());
+            oos = new ObjectOutputStream(cConnection.getOutputStream());
+            ois = new ObjectInputStream(cConnection.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -82,10 +78,10 @@ public class Participant implements Runnable {
         try {
             socket = new Socket(host, port);
         } catch (UnknownHostException e) {
-            log("Host Unknown. Quitting");
+            System.err.println("Host Unknown. Quitting");
             System.exit(0);
         } catch (IOException ex){
-            log("Could not Connect to " + host + ":" + port + ".  Trying again...");
+            System.err.println("Could not Connect to " + host + ":" + port + ".  Trying again...");
             delay(1000);
             return connect(port, host);
         }
@@ -100,18 +96,14 @@ public class Participant implements Runnable {
         }
     }
 
-    private void log(String log){
-        System.out.println(log);
-    }
-
     private void close() {
         try {
             oos.close();
             ois.close();
-            cSocket.close();
+            cConnection.close();
             isRunning = false;
         } catch (IOException e) {
-            log("Closing connection...");
+            System.out.println("Closing connection...");
         }
     }
 
@@ -124,46 +116,52 @@ public class Participant implements Runnable {
         waitClients();
 
         while(true){
-            Token.sleep(1000);
             if(group.size() == participantsDetails.size()){
                 System.out.println("starting consensus");
+                Token.sleep(500);
                 runConsensusAlgorithm();
-                return;
+                System.exit(0);
             }
         }
-
     }
 
     private void runConsensusAlgorithm() {
-        roundVotes.put(0, new HashSet<>());
-        Set<Vote> v1 = new HashSet<>(); v1.add(myVote);
+        roundVotes.put(0, new ArrayList<>());
+        List<Vote> v1 = new ArrayList<>();
+        v1.add(myVote);
         roundVotes.put(1, v1);
 
         for (int r = 1; r <= f+1; r++) {
             logger.beginRound(r);
 
-            Token.log("Round " + r + ": " + roundVotes.get(r)); Token.sleep(5000);
-            Set<Vote> newVotes;
+            List<Vote> newVotes;
             if(r != 1)
                 newVotes = getNewVotes(roundVotes.get(r), roundVotes.get(r-1));
             else
-                newVotes = new HashSet<>(roundVotes.get(r));
+                newVotes = new ArrayList<>(roundVotes.get(r));
 
             basicMulticast(newVotes, group.values()); // multi-cast newVotes to group
             System.out.println("Multicasting: " + newVotes);
-            roundVotes.put(r+1, roundVotes.get(r));
+            roundVotes.put(r+1, new ArrayList<>());
 
-            Token.sleep(timeout);
+            Collection<String> received = new TreeSet<String>();
+            Collection<String> next = new TreeSet<String>();
+            Token.sleep(getTimeout());
 
             for(OtherParticipantHandler o: p2pHandler) {
                 while(!o.getVotesReceived().isEmpty()){
-                    roundVotes.get(r + 1).add(o.getVotesReceived().remove());
+                    Vote voteToAdd = o.getVotesReceived().remove();
+                    received.add(voteToAdd.toString());
                 }
             }
-            if(r == 2 && pport == 1111)
-                roundVotes.get(r + 1).add(new Vote(0000, "B"));
 
+            roundVotes.get(r).forEach(v -> next.add(v.toString()));
+            received.addAll(next);
+            List<Vote> newVoteList = new ArrayList<>();
+            received.forEach(v -> newVoteList.add(getVoteFromString(v)));
+            roundVotes.put(r+1, newVoteList);
             logger.endRound(r);
+            Token.sleep(1000);
         }
 
         StringBuilder req = new StringBuilder();
@@ -171,27 +169,71 @@ public class Participant implements Runnable {
         //VOTE port i vote 1 port 2 vote 2 ...port n vote n
         roundVotes.get(f+1).forEach(vote -> req.append(vote.getParticipantPort()).append(" ").append(vote.getVote()).append(" "));
         System.out.println(req);
+
+        this.decidedState = maximum(roundVotes.get(f+1));
+
+        List<Integer> participants = new ArrayList<>();
+        roundVotes.get(f+1).forEach(v -> participants.add(v.getParticipantPort()));
+
+        Token.Outcome outcome = new Token().new Outcome(decidedState, participants);
+
+        logger.outcomeDecided(outcome.outcome,outcome.participants);
+
+        System.out.println(outcome);
+
+        sendOutcome(outcome);
+        this.isOutcomeSent = true;
+
+        p2pHandler.forEach(OtherParticipantHandler::close);
+        System.exit(0);
+       // group.values().forEach(ParticipantClient::close);
+
     }
 
-    private Set<Vote> getNewVotes(Set<Vote> curr, Set<Vote> prev) {
+    private void sendOutcome(Token.Outcome outcome) {
+        try {
+            oos.writeObject(outcome);
+            oos.flush();
+            logger.messageSent(cConnection.getPort(), outcome.request);
+            logger.outcomeNotified(outcome.outcome, outcome.participants);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String maximum(List<Vote> votes) {
+          List<String> list = new ArrayList<String>();
+          votes.forEach(v -> list.add(v.getVote()));
+
+            Map<String, Integer> map = new HashMap<>();
+
+            for (String t : list) {
+                Integer val = map.get(t);
+                map.put(t, val == null ? 1 : val + 1);
+            }
+
+            Map.Entry<String, Integer> max = null;
+
+            for (Map.Entry<String, Integer> e : map.entrySet()) {
+                if (max == null || e.getValue() > max.getValue())
+                    max = e;
+            }
+
+            System.err.println(map);
+            return max.getKey();
+    }
+
+    private List<Vote> getNewVotes(List<Vote> curr, List<Vote> prev) {
         Set<String> ids = prev.stream()
                 .map(Vote::toString)
                 .collect(Collectors.toSet());
-        Set<Vote> noDup = curr.stream()
+        List<Vote> noDup = curr.stream()
                 .filter(v -> !ids.contains(v.toString()))
-                .collect(Collectors.toSet());
-
-        System.out.println("IDS:" + ids);
-
-        Set<String> ids2 = curr.stream()
-                .map(Vote::toString)
-                .collect(Collectors.toSet());
-        System.out.println("IDS2:" + ids2);
-
+                .collect(Collectors.toList());
         return noDup;
     }
 
-    private void basicMulticast(Set<Vote> votes, Collection<ParticipantClient> group){
+    private void basicMulticast(List<Vote> votes, Collection<ParticipantClient> group){
         List<SingleVote> singleVoteList = new ArrayList<>();
         votes.forEach(v -> singleVoteList.add(new SingleVote(v.getParticipantPort(), v.getVote())));
 
@@ -199,11 +241,16 @@ public class Participant implements Runnable {
         votes.forEach(v -> votesForLogger.add(new Vote(v.getParticipantPort(), v.getVote())));
 
         Token.Votes votesToSend = new Token().new Votes(singleVoteList);
-        group.forEach(m -> {
-            m.sendMessage(votesToSend);
-            logger.messageSent(pport, votesToSend.request);
-            logger.votesSent(m.getOtherPort(), votesForLogger);
-        });
+
+        if(!votesToSend.votes.isEmpty()) {
+            group.forEach(m -> {
+                if(this.pport == 1111)
+                    Token.sleep(10000);
+                m.sendMessage(votesToSend);
+                logger.messageSent(m.getTcpPort(), votesToSend.request);
+                logger.votesSent(m.getId(), votesForLogger);
+            });
+        }
     }
 
     private void listenConnections() {
@@ -218,8 +265,9 @@ public class Participant implements Runnable {
 
     private void establishConnections() {
         //Connect to other participants (servers)
-        for(Integer otherP: participantsDetails){
-                ParticipantClient client = new ParticipantClient(otherP, host, this);
+        for(Integer id: participantsDetails){
+                ParticipantClient client = new ParticipantClient(id, host, this);
+
         }
     }
 
@@ -265,11 +313,11 @@ public class Participant implements Runnable {
                 if(request instanceof Token.Details){
                     this.participantsDetails = ((Token.Details) request).ports;
                     this.f = participantsDetails.size();
-                    logger.messageReceived(cport, request.request);
+                    logger.messageReceived(cConnection.getPort(), request.request);
                     logger.detailsReceived(participantsDetails);
                 }else if(request instanceof Token.VoteOptions) {
                     this.options = ((Token.VoteOptions) request).voteOptions;
-                    logger.messageReceived(cport, request.request);
+                    logger.messageReceived(cConnection.getPort(), request.request);
                     logger.voteOptionsReceived(options);
                     break;
                 } else{
@@ -287,7 +335,7 @@ public class Participant implements Runnable {
             Token.Join join = new Token().new Join(pport);
             oos.writeObject(join);
             oos.flush();
-            logger.messageSent(cport, join.request);
+            logger.messageSent(cConnection.getPort(), join.request);
             logger.joinSent(cport);
         } catch (IOException e) {
             e.printStackTrace();
@@ -314,7 +362,11 @@ public class Participant implements Runnable {
         return group;
     }
 
-
+    public static Vote getVoteFromString(String vote){
+        int id = Integer.parseInt(vote.substring(1,vote.indexOf(",")));
+        String v = vote.substring(vote.indexOf(" ")+1 , vote.length()-1);
+        return new Vote(id, v);
+    }
 
     public static void main(String[] args) {
         if(args.length != 4){
@@ -332,7 +384,7 @@ public class Participant implements Runnable {
 
 
             try {
-                ParticipantLogger.initLogger(0000000, pport, (int) timeout);
+                ParticipantLogger.initLogger(lport, pport, (int) timeout);
             } catch (IOException e) {
                 e.printStackTrace();
             }

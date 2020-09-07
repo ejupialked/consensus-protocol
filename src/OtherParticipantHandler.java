@@ -6,16 +6,16 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class OtherParticipantHandler extends Thread {
-    private Socket otherParticipant;
+    private Socket connection;
     private Participant participant;
-    private int otherPort = 9999999;
+    private int otherPort;
 
     private Queue<Vote> votesReceived;
-
     private ObjectInputStream ois;
 
-    OtherParticipantHandler(Socket otherParticipant, Participant participant) {
-        this.otherParticipant = otherParticipant;
+    OtherParticipantHandler(Socket connection, Participant participant) {
+        this.connection = connection;
+        this.otherPort = connection.getPort();
         this.participant = participant;
         this.votesReceived = new LinkedBlockingDeque<>();
         initStreams();
@@ -32,35 +32,30 @@ public class OtherParticipantHandler extends Thread {
 
     private void initStreams() {
         try {
-            ois = new ObjectInputStream(otherParticipant.getInputStream());
+            ois = new ObjectInputStream(connection.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void close() {
+    public void close() {
         try {
             ois.close();
-            otherParticipant.close();
+            connection.close();
         } catch (IOException e) {
 
         }
     }
 
     public void receiveVotes(){
-
         int i = 0;
         while(true){
-
             i++;
             try {
                 Token request = null;
                 try {
                     request = ((Token) ois.readObject());
-                    participant.logger.messageReceived(participant.getPport(), request.request + " loop -> " + i
-
-                    + " from " + this.toString());
-
+                    participant.logger.messageReceived(connection.getPort(), request.request);
 
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -78,39 +73,35 @@ public class OtherParticipantHandler extends Thread {
                     });
                     participant.logger.votesReceived(otherPort, votesForLogger);
 
-
                     // SET for b-delivery
                     ((Token.Votes) request).votes.forEach(v -> {
                         votesReceived.add(new Vote(v.getParticipantPort(), v.getVote()));
                     });
 
-                    Token.log(votesReceived);
+                    Token.log("From " + otherPort +" " +votesReceived);
                 }else{
                     System.out.println(request.request);
                 }
 
             } catch (EOFException e){
                 System.err.println("Closing connection with " + otherPort);
+                if(!participant.isOutcomeSent)
+                    participant.logger.participantCrashed(otherPort);
                 close();
                 this.participant.removeParticipant(this);
                 return;
             } catch (IOException e ) {
                 System.err.println("Closing connection with " + otherPort);
+                if(!participant.isOutcomeSent)
+                    participant.logger.participantCrashed(otherPort);
                 this.participant.removeParticipant(this);
                 close();
                 return;
-
             }
         }
-
     }
-
 
     public Queue<Vote> getVotesReceived() {
         return votesReceived;
-    }
-
-    public void setOtherPort(int otherPort) {
-        this.otherPort = otherPort;
     }
 }

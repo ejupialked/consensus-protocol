@@ -38,8 +38,10 @@ public class ParticipantHandler extends Thread {
             ois.close();
             participant.close();
             isRunning = false;
+            coordinator.unregister(this.getIdentifier());
         } catch (IOException e) {
             System.out.println("Closing connection with P" + id);
+            coordinator.logger.participantCrashed(id);
         }
     }
 
@@ -49,11 +51,15 @@ public class ParticipantHandler extends Thread {
             oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
+            close();
+            coordinator.logger.participantCrashed(id);
         }
     }
 
     public void receiveMessages(){
         this.isRunning = true;
+
+        int outcomes = 0;
         while(isRunning){
             try {
                 Token request = null;
@@ -65,12 +71,19 @@ public class ParticipantHandler extends Thread {
 
                 if(request instanceof Token.Outcome){
                     System.out.println(((Token.Outcome) request).outcome);
+                    coordinator.logger.messageReceived(participant.getPort(), request.request);
+                    coordinator.logger.outcomeReceived(id, ((Token.Outcome) request).outcome);
+                    outcomes++;
                 }else{
                     System.out.println(request.request);
+                    coordinator.logger.messageReceived(participant.getPort(), request.request);
+                }
+
+                if(coordinator.getParticipants().values().size() == outcomes){
+                    return;
                 }
 
             } catch (IOException e) {
-                //e.printStackTrace();
                 System.err.println("Closing connection with " + id);
                 close();
             }
@@ -86,11 +99,13 @@ public class ParticipantHandler extends Thread {
             e.printStackTrace();
             close();
         } catch (ClassNotFoundException e) {
+            coordinator.logger.participantCrashed(id);
             System.err.println("Unknown participant did not send a join request.");
             return null;
         }
         return null;
     }
+
 
     public void setID(int id) {
         this.id = id;
@@ -98,5 +113,9 @@ public class ParticipantHandler extends Thread {
 
     public Integer getIdentifier() {
         return id;
+    }
+
+    public int getTcpPort() {
+        return participant.getPort();
     }
 }
